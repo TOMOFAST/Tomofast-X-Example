@@ -9,7 +9,8 @@ from onecode import (
     file_input,
     dropdown,
     checkbox,
-    text_input
+    text_input,
+    file_output
 )
 
 from .parameters import write_params
@@ -115,3 +116,15 @@ def run():
         "-np", str(n_cores),
         "./tomofast-x/tomofastx", "-j", param_file
     ])
+
+    # Here, expose all output files by recursively looping in the output directory
+    # Alternatively, explicit declaration
+    # e.g. file_output('file 1', os.path.join(out_path, 'model', 'grav_final_model_full.txt'))
+
+    for dirpath, _, filenames in os.walk(out_path):
+        for filename in filenames:
+            # add if-statement here to filter files and not expose some of them,
+            # e.g. if filename.endswith('.txt')
+
+            f = os.path.join(dirpath, filename)
+            file_output(f, f)
