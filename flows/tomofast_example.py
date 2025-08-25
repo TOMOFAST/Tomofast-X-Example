@@ -32,6 +32,7 @@ def run():
         n_cores = max_cores
 
     # Input parameters and output folder definition
+    Logger.info("Preparing parameter file...")
     data_path = Project().data_root
     param_file = os.path.join(data_path, 'parameters.txt')
     out_path = os.path.join(data_path, "outputs")
@@ -108,20 +109,24 @@ def run():
         admm_grav_weight
     )
 
-    # Run tomofast with MPI if present on the machine
     if shutil.which('mpirun') is None:
-        Logger.info("MPI is not available => Running Tomofast-x as regular process")
-        subprocess.run(["./tomofast-x/tomofastx", "-j", param_file])
+        Logger.critical("MPI is not present on the machine => aborting")
+        raise RuntimeError("MPI is not present on the machine!")
 
-    else:
+    # Run tomofast
+    try:
         Logger.info(f"MPI available => Running Tomofast-x with {n_cores} cores")
 
-        subprocess.run([
+        result = subprocess.run([
             "mpirun",
             "--oversubscribe",
             "-np", str(n_cores),
             "./tomofast-x/tomofastx", "-j", param_file
         ])
+        returncode = result.returncode
+
+    except:
+        returncode = -1
 
     # Here, expose all output files by recursively looping in the output directory
     # Alternatively, explicit declaration
@@ -134,3 +139,7 @@ def run():
 
             f = os.path.join(dirpath, filename)
             file_output(f, f)
+
+    if returncode != 0:
+        Logger.critical("An error occured while running Tomofast-x")
+        raise RuntimeError(f"An error occured while running Tomofast-x [{returncode}]")
