@@ -1,5 +1,6 @@
 import os
 import subprocess
+import shutil
 
 from onecode import (
     Logger,
@@ -29,8 +30,6 @@ def run():
     max_cores = os.cpu_count()
     if n_cores == 0 or n_cores > max_cores:
         n_cores = max_cores
-    
-    Logger.info(f"Running Tomofast-x with {n_cores} cores")
 
     # Input parameters and output folder definition
     data_path = Project().data_root
@@ -109,13 +108,20 @@ def run():
         admm_grav_weight
     )
 
-    # Run tomofast
-    subprocess.run([
-        "mpirun",
-        "--oversubscribe",
-        "-np", str(n_cores),
-        "./tomofast-x/tomofastx", "-j", param_file
-    ])
+    # Run tomofast with MPI if present on the machine
+    if shutil.which('mpirun') is None:
+        Logger.info("MPI is not available => Running Tomofast-x as regular process")
+        subprocess.run(["./tomofast-x/tomofastx", "-j", param_file])
+
+    else:
+        Logger.info(f"MPI available => Running Tomofast-x with {n_cores} cores")
+
+        subprocess.run([
+            "mpirun",
+            "--oversubscribe",
+            "-np", str(n_cores),
+            "./tomofast-x/tomofastx", "-j", param_file
+        ])
 
     # Here, expose all output files by recursively looping in the output directory
     # Alternatively, explicit declaration
