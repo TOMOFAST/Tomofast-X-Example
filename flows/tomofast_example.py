@@ -138,7 +138,7 @@ def run():
             # e.g. if filename.endswith('.txt')
 
             f = os.path.join(dirpath, filename)
-            file_output(f, f)
+            file_output(filename, f)
 
     if returncode != 0:
         Logger.critical("An error occured while running Tomofast-x")
