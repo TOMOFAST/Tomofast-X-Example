@@ -81,41 +81,23 @@ def run():
 
     # logic here to read the existing parameter file
     with open(param_file) as f:
-        r.readl
+        lines = f.readlines()
 
-    # replace only the selected parameters
+    new_params = []
+    for line in lines:
+        if line.startswith('forward.matrixCompression.rate'):
+            line = f'forward.matrixCompression.rate = {matrix_comp_rate} \n'
+        elif line.startswith('modelGrid.grav.file'):
+            line = f'modelGrid.grav.file = {grav_file} \n'
+        elif line.startswith('forward.data.grav.dataGridFile'):
+            line = f'forward.data.grav.dataGridFile = {grid_file} \n'
 
-    # Write parameters to file
-    write_params(
-        param_file,
-        out_path,
-        nx,
-        ny,
-        nz,
-        grav_file,
-        n_data,
-        grid_file,
-        depth_type,
-        grav_power,
-        matrix_comp_type,
-        matrix_comp_rate,
-        prior_model_type,
-        prior_model_grav,
-        start_model_type,
-        start_model_grav,
-        n_major_itr,
-        n_minor_itr,
-        write_model_itr,
-        min_residual,
-        damping_grav_weight,
-        damping_norm_power,
-        joint_grav_weight,
-        joint_magn_weight,
-        admm_enable,
-        admm_n_lithos,
-        admm_grav_bounds,
-        admm_grav_weight
-    )
+        new_params.append(line)
+
+    with open(param_file, 'w') as f:
+        for l in new_params:
+            f.write(l)
+
 
     if shutil.which('mpirun') is None:
         Logger.critical("MPI is not present on the machine => aborting")
