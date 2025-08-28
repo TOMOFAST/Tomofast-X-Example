@@ -31,7 +31,7 @@ def run():
     if n_cores == 0 or n_cores > max_cores:
         n_cores = max_cores
 
-    param_file = file_input('Parameter File', 'Parfile_mansf_slice.txt', types=[("TXT", ".txt")])
+    user_param_file = file_input('Parameter File', 'Parfile_mansf_slice.txt', types=[("TXT", ".txt")])
 
     # Input parameters and output folder definition
     Logger.info("Preparing parameter file...")
@@ -80,7 +80,7 @@ def run():
     admm_grav_weight = 1e-5 # slider("ADMM Grav. Weight", 1e-5, min=0., max=1., step=1e-5)
 
     # logic here to read the existing parameter file
-    with open(param_file) as f:
+    with open(user_param_file) as f:
         lines = f.readlines()
 
     new_params = []
@@ -94,7 +94,7 @@ def run():
 
         new_params.append(line)
 
-    with open(param_file, 'w') as f:
+    with open(user_param_file, 'w') as f:
         for l in new_params:
             f.write(l)
 
@@ -111,7 +111,7 @@ def run():
             "mpirun",
             "--oversubscribe",
             "-np", str(n_cores),
-            "./tomofast-x/tomofastx", "-j", param_file
+            "./tomofast-x/tomofastx", "-j", user_param_file
         ])
         returncode = result.returncode
 
