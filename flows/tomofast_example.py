@@ -7,10 +7,13 @@ from onecode import (
     Project,
     slider,
     file_input,
-    file_output
+    file_output,
+    dropdown,
+    number_input
 )
 
 from .utils import fortran_double_str
+from .tomofast_vis import main
 
 
 def run():
@@ -50,7 +53,7 @@ def run():
 
     # Replace default parameters with user-selected parameters
     # => for each parameter to overwrite:
-    #  - key is the parameter name in the parameter file, e.g. 'f'orward.matrixCompression.rate'
+    #  - key is the parameter name in the parameter file, e.g. 'forward.matrixCompression.rate'
     #  - value is used to overwrite the default, e.g. 0.45
     new_params = []
     for line in lines:
@@ -91,7 +94,22 @@ def run():
     if returncode != -1:
         # make viz here (e.g. matplotlib)
         # instead of or in addition to plt.show() => plt.savefig(file_output(...))
-        Logger.info("Tomofast ran successfully")
+        Logger.info("Tomofast ran successfully, generating graphical outputs")
+        viz_folder = os.path.join(out_path, 'visualizations')
+        os.makedirs(viz_folder, exist_ok=True)
+
+        # ask user for dim and index to visualize
+        slice_dim = dropdown("[Viz] Dimension to visualize", "1", options=["0", "1", "2"])
+        slice_index = number_input("[Viz] Slice index to visualize", 1, min=1, step=1)
+        main(
+            user_parameters['modelGrid.grav.file'],
+            os.path.join(out_path, 'model', 'grav_final_model_full.txt'),
+            user_parameters['forward.data.grav.dataValuesFile'],
+            os.path.join(out_path, 'data', 'grav_calc_final_data.txt'),
+            slice_dim=int(slice_dim),
+            slice_index=int(slice_index),
+            to_folder=viz_folder
+        )
 
     # Here, expose all output files by recursively looping in the output directory
     # Alternatively, explicit declaration
