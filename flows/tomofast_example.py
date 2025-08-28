@@ -39,9 +39,9 @@ def run():
     param_file = os.path.join(data_path, 'parameters.txt')
     out_path = os.path.join(data_path, "outputs")
 
-    nx = number_input('Nx', 2, min=0, step=1)
-    ny = number_input('Ny', 128, min=0, step=1)
-    nz = number_input('Nz', 32, min=0, step=1)
+    nx = 2 # number_input('Nx', 2, min=0, step=1)
+    ny = 128 # number_input('Ny', 128, min=0, step=1)
+    nz = 32 # number_input('Nz', 32, min=0, step=1)
 
     grav_file = file_input('Model Grav. file', 'gravmag/mansf_slice/true_model_grav_3litho.txt', types=[("TXT", ".txt")])
     n_data = 256 # number_input('Grav. N data', 256, min=0, step=1)
@@ -80,6 +80,9 @@ def run():
     admm_grav_weight = 1e-5 # slider("ADMM Grav. Weight", 1e-5, min=0., max=1., step=1e-5)
 
     # logic here to read the existing parameter file
+    with open(param_file) as f:
+        r.readl
+
     # replace only the selected parameters
 
     # Write parameters to file
