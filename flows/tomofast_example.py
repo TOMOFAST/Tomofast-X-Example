@@ -31,6 +31,8 @@ def run():
     if n_cores == 0 or n_cores > max_cores:
         n_cores = max_cores
 
+    param_file = file_input('Parameter File', 'Parfile_mansf_slice.txt', types=[("TXT", ".txt")])
+
     # Input parameters and output folder definition
     Logger.info("Preparing parameter file...")
     data_path = Project().data_root
@@ -42,40 +44,43 @@ def run():
     nz = number_input('Nz', 32, min=0, step=1)
 
     grav_file = file_input('Model Grav. file', 'gravmag/mansf_slice/true_model_grav_3litho.txt', types=[("TXT", ".txt")])
-    n_data = number_input('Grav. N data', 256, min=0, step=1)
+    n_data = 256 # number_input('Grav. N data', 256, min=0, step=1)
     
     grid_file = file_input('Model Grid file', 'gravmag/mansf_slice/data_grid.txt', types=[("TXT", ".txt")])
 
-    depth_type = dropdown("Depth Weighting Type", "1", options=["0", "1"])
-    grav_power = number_input("Depth Weighting Grav. Power", 2, min=1, step=1)
+    depth_type = "1" # dropdown("Depth Weighting Type", "1", options=["0", "1"])
+    grav_power = 2 #number_input("Depth Weighting Grav. Power", 2, min=1, step=1)
 
-    matrix_comp_type = dropdown("Matrix Compression Type", "1-wavelet", options=["0-none", "1-wavelet"])
+    matrix_comp_type = "1-wavelet" # dropdown("Matrix Compression Type", "1-wavelet", options=["0-none", "1-wavelet"])
     matrix_comp_type = matrix_comp_type.split("-")[0]
 
     matrix_comp_rate = slider("Matrix Compression Rate", 0.15, min=0., max=1., step=0.01)
 
-    prior_model_type = dropdown("Prior Model Type", "1", options=["0", "1"])
-    prior_model_grav = number_input("Prior Model Grav.", 0.,)
+    prior_model_type = "1" # dropdown("Prior Model Type", "1", options=["0", "1"])
+    prior_model_grav = 0. # number_input("Prior Model Grav.", 0.,)
 
-    start_model_type = dropdown("Start Model Type", "1", options=["0", "1"])
-    start_model_grav = number_input("Start Model Grav.", 0.,)
+    start_model_type = "1" # dropdown("Start Model Type", "1", options=["0", "1"])
+    start_model_grav = 0. # number_input("Start Model Grav.", 0.,)
 
-    n_major_itr = number_input("N Major Iterations", 60, min=1, step=1)
-    n_minor_itr = number_input("N Minor Iterations", 100, min=1, step=1)
-    write_model_itr = number_input("Write Model every N iteration", 0, min=0, step=1)
-    min_residual = number_input("Min. Residual", 1e-13, min=1e-13, step=1e-13)
+    n_major_itr = 60 # number_input("N Major Iterations", 60, min=1, step=1)
+    n_minor_itr = 100 # number_input("N Minor Iterations", 100, min=1, step=1)
+    write_model_itr = 0 # number_input("Write Model every N iteration", 0, min=0, step=1)
+    min_residual = 1e-13 # number_input("Min. Residual", 1e-13, min=1e-13, step=1e-13)
 
-    damping_grav_weight = slider("Damping Grav. Weight", 0., min=0., max=1., step=0.01)
-    damping_norm_power = number_input("Damping Norm Power", 2, min=1, step=1)
+    damping_grav_weight = 0 # slider("Damping Grav. Weight", 0., min=0., max=1., step=0.01)
+    damping_norm_power = 2 # number_input("Damping Norm Power", 2, min=1, step=1)
     
-    joint_grav_weight = slider("Inversion Grav. Problem Weight", 1., min=0., max=1., step=0.01)
-    joint_magn_weight = slider("Inversion Magn. Problem Weight", 0., min=0., max=1., step=0.01)
+    joint_grav_weight = 1 #slider("Inversion Grav. Problem Weight", 1., min=0., max=1., step=0.01)
+    joint_magn_weight = 0 # slider("Inversion Magn. Problem Weight", 0., min=0., max=1., step=0.01)
 
-    admm_enable = checkbox("Enable ADMM", True)
-    admm_n_lithos = number_input("ADMM N Lithologies", 3, min=1, step=1)
-    admm_grav_bounds = text_input("ADMM Grav. bounds (whitespace separated)", "-20. 20. 90. 130. 220. 260.")
+    admm_enable = True # checkbox("Enable ADMM", True)
+    admm_n_lithos = 0 # number_input("ADMM N Lithologies", 3, min=1, step=1)
+    admm_grav_bounds = "-20. 20. 90. 130. 220. 260." # text_input("ADMM Grav. bounds (whitespace separated)", "-20. 20. 90. 130. 220. 260.")
     admm_grav_bounds = admm_grav_bounds.split(" ")
-    admm_grav_weight = slider("ADMM Grav. Weight", 1e-5, min=0., max=1., step=1e-5)
+    admm_grav_weight = 1e-5 # slider("ADMM Grav. Weight", 1e-5, min=0., max=1., step=1e-5)
+
+    # logic here to read the existing parameter file
+    # replace only the selected parameters
 
     # Write parameters to file
     write_params(
