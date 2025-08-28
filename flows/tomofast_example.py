@@ -6,15 +6,11 @@ from onecode import (
     Logger,
     Project,
     slider,
-    number_input,
     file_input,
-    dropdown,
-    checkbox,
-    text_input,
     file_output
 )
 
-from .parameters import write_params
+from .utils import fortran_double_str
 
 
 def run():
@@ -31,73 +27,47 @@ def run():
     if n_cores == 0 or n_cores > max_cores:
         n_cores = max_cores
 
-    user_param_file = file_input('Parameter File', 'Parfile_mansf_slice.txt', types=[("TXT", ".txt")])
-
     # Input parameters and output folder definition
     Logger.info("Preparing parameter file...")
     data_path = Project().data_root
-    param_file = os.path.join(data_path, 'parameters.txt')
     out_path = os.path.join(data_path, "outputs")
 
-    nx = 2 # number_input('Nx', 2, min=0, step=1)
-    ny = 128 # number_input('Ny', 128, min=0, step=1)
-    nz = 32 # number_input('Nz', 32, min=0, step=1)
+    parameter_file = file_input('Parameter File', 'Parfile_mansf_slice.txt', types=[("TXT", ".txt")])
 
-    grav_file = file_input('Model Grav. file', 'gravmag/mansf_slice/true_model_grav_3litho.txt', types=[("TXT", ".txt")])
-    n_data = 256 # number_input('Grav. N data', 256, min=0, step=1)
-    
-    grid_file = file_input('Model Grid file', 'gravmag/mansf_slice/data_grid.txt', types=[("TXT", ".txt")])
+    # parameters to overwrite
+    user_parameters = {
+        'modelGrid.grav.file': file_input('Model Grav. file', 'gravmag/mansf_slice/true_model_grav_3litho.txt', types=[("TXT", ".txt")]),
+        'forward.data.grav.dataGridFile': file_input('Model Grid file', 'gravmag/mansf_slice/data_grid.txt', types=[("TXT", ".txt")]),
+        'forward.matrixCompression.rate' : slider("Matrix Compression Rate", 0.15, min=0., max=1., step=0.01),
+        'global.outputFolderPath ': out_path,                                                           # output in data folder so that files are automatically uploaded afterward
+        'forward.data.grav.dataValuesFile': os.path.join(out_path, 'data', 'grav_calc_read_data.txt'),  # output in data folder so that files are automatically uploaded afterward
+        'sensit.folderPath': os.path.join(out_path, 'SENSIT'),                                          # output in data folder so that files are automatically uploaded afterward
+    }
 
-    depth_type = "1" # dropdown("Depth Weighting Type", "1", options=["0", "1"])
-    grav_power = 2 #number_input("Depth Weighting Grav. Power", 2, min=1, step=1)
-
-    matrix_comp_type = "1-wavelet" # dropdown("Matrix Compression Type", "1-wavelet", options=["0-none", "1-wavelet"])
-    matrix_comp_type = matrix_comp_type.split("-")[0]
-
-    matrix_comp_rate = slider("Matrix Compression Rate", 0.15, min=0., max=1., step=0.01)
-
-    prior_model_type = "1" # dropdown("Prior Model Type", "1", options=["0", "1"])
-    prior_model_grav = 0. # number_input("Prior Model Grav.", 0.,)
-
-    start_model_type = "1" # dropdown("Start Model Type", "1", options=["0", "1"])
-    start_model_grav = 0. # number_input("Start Model Grav.", 0.,)
-
-    n_major_itr = 60 # number_input("N Major Iterations", 60, min=1, step=1)
-    n_minor_itr = 100 # number_input("N Minor Iterations", 100, min=1, step=1)
-    write_model_itr = 0 # number_input("Write Model every N iteration", 0, min=0, step=1)
-    min_residual = 1e-13 # number_input("Min. Residual", 1e-13, min=1e-13, step=1e-13)
-
-    damping_grav_weight = 0 # slider("Damping Grav. Weight", 0., min=0., max=1., step=0.01)
-    damping_norm_power = 2 # number_input("Damping Norm Power", 2, min=1, step=1)
-    
-    joint_grav_weight = 1 #slider("Inversion Grav. Problem Weight", 1., min=0., max=1., step=0.01)
-    joint_magn_weight = 0 # slider("Inversion Magn. Problem Weight", 0., min=0., max=1., step=0.01)
-
-    admm_enable = True # checkbox("Enable ADMM", True)
-    admm_n_lithos = 0 # number_input("ADMM N Lithologies", 3, min=1, step=1)
-    admm_grav_bounds = "-20. 20. 90. 130. 220. 260." # text_input("ADMM Grav. bounds (whitespace separated)", "-20. 20. 90. 130. 220. 260.")
-    admm_grav_bounds = admm_grav_bounds.split(" ")
-    admm_grav_weight = 1e-5 # slider("ADMM Grav. Weight", 1e-5, min=0., max=1., step=1e-5)
-
-    # logic here to read the existing parameter file
-    with open(user_param_file) as f:
+    # read default parameters
+    with open(parameter_file) as f:
         lines = f.readlines()
 
+    # Replace default parameters with user-selected parameters
+    # => for each parameter to overwrite:
+    #  - key is the parameter name in the parameter file, e.g. 'f'orward.matrixCompression.rate'
+    #  - value is used to overwrite the default, e.g. 0.45
     new_params = []
     for line in lines:
-        if line.startswith('forward.matrixCompression.rate'):
-            line = f'forward.matrixCompression.rate = {matrix_comp_rate} \n'
-        elif line.startswith('modelGrid.grav.file'):
-            line = f'modelGrid.grav.file = {grav_file} \n'
-        elif line.startswith('forward.data.grav.dataGridFile'):
-            line = f'forward.data.grav.dataGridFile = {grid_file} \n'
+        for key, value in user_parameters.items():
+            if line.startswith(key):
+                # if number, user fortran double-convention
+                if isinstance(value, (int, float)):
+                    value = fortran_double_str(value)
 
+                line = f'{key} = {value} \n'
         new_params.append(line)
 
-    with open(user_param_file, 'w') as f:
+    # write new parameter file
+    new_param_file = parameter_file.replace('.txt', '_new.txt')
+    with open(new_param_file, 'w') as f:
         for l in new_params:
             f.write(l)
-
 
     if shutil.which('mpirun') is None:
         Logger.critical("MPI is not present on the machine => aborting")
@@ -111,12 +81,17 @@ def run():
             "mpirun",
             "--oversubscribe",
             "-np", str(n_cores),
-            "./tomofast-x/tomofastx", "-j", user_param_file
+            "./tomofast-x/tomofastx", "-j", new_param_file
         ])
         returncode = result.returncode
 
     except:
         returncode = -1
+
+    if returncode != -1:
+        # make viz here (e.g. matplotlib)
+        # instead of or in addition to plt.show() => plt.savefig(file_output(...))
+        Logger.info("Tomofast ran successfully")
 
     # Here, expose all output files by recursively looping in the output directory
     # Alternatively, explicit declaration
