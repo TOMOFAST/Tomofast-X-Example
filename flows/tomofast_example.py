@@ -39,8 +39,8 @@ def run():
 
     # parameters to overwrite
     user_parameters = {
-        'modelGrid.grav.file': file_input('Model Data. file', 'gravmag/mansf_slice/true_model_grav_3litho.txt', types=[("CSV", ".csv"), ("TXT", ".txt")]),
-        'forward.data.grav.dataGridFile': file_input('Model Mesh file', 'gravmag/mansf_slice/data_grid.txt', types=[("TXT", ".txt")]),
+        'modelGrid.grav.file': file_input('Mesh file', 'model_grid2.txt', types=[("CSV", ".csv"), ("TXT", ".txt")]),
+        'forward.data.grav.dataGridFile': file_input('Data file', 'data_grav.csv', types=[("CSV", ".csv"),("TXT", ".txt")]),
         'forward.matrixCompression.rate' : slider("Matrix Compression Rate", 0.15, min=0., max=1., step=0.01),
         'global.outputFolderPath ': out_path,                                                           # output in data folder so that files are automatically uploaded afterward
         'forward.data.grav.dataValuesFile': os.path.join(out_path, 'data', 'grav_calc_read_data.txt'),  # output in data folder so that files are automatically uploaded afterward
