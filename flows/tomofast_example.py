@@ -35,7 +35,7 @@ def run():
     data_path = Project().data_root
     out_path = os.path.join(data_path, "outputs")
 
-    parameter_file = file_input('Parameter File', 'Parfile_mansf_slice.txt', types=[("TXT", ".txt")])
+    parameter_file = file_input('Parameter File', 'paramfile2.txt', types=[("TXT", ".txt")])
 
     # parameters to overwrite
     user_parameters = {
