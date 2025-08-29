@@ -71,7 +71,7 @@ def run():
     nx=int(nx)
     ny=int(ny)
     nz=int(nz)
-    
+
     # write new parameter file
     new_param_file = parameter_file.replace('.txt', '_new.txt')
     with open(new_param_file, 'w') as f:
@@ -147,8 +147,10 @@ def run():
             # add if-statement here to filter files and not expose some of them,
             # e.g. if filename.endswith('.txt')
 
-            f = os.path.join(dirpath, filename)
-            file_output(filename, f)
+            suffix_list= tuple(['.txt','.jpg','.vtk'])
+            if filename.endswith(suffix_list):
+                f = os.path.join(dirpath, filename)
+                file_output(filename, f)
 
     if returncode != 0:
         Logger.critical("An error occured while running Tomofast-x")
