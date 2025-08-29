@@ -280,7 +280,7 @@ def main(
     #----------------------------------------------------------------------------------
 
     # Reading the model grid.
-    model_grid = np.loadtxt(filename_model_grid, dtype=float, usecols=(0,1,2,3,4,5,6), skiprows=1)
+    model_grid = np.loadtxt(filename_model_grid, dtype=float, usecols=(0,1,2,3,4,5,6), skiprows=1,delimiter=' ')
     model_indexes = np.loadtxt(filename_model_grid, dtype=int, usecols=(7,8,9), skiprows=1)
 
     # Revert Z-axis.
