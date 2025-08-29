@@ -64,8 +64,14 @@ def run():
                     value = fortran_double_str(value)
 
                 line = f'{key} = {value} \n'
+            elif line.startswith('modelGrid.size') :
+                nx, ny, nz= line.split('= ')[1].split(' ')
         new_params.append(line)
 
+    nx=int(nx)
+    ny=int(ny)
+    nz=int(nz)
+    
     # write new parameter file
     new_param_file = parameter_file.replace('.txt', '_new.txt')
     with open(new_param_file, 'w') as f:
@@ -99,15 +105,35 @@ def run():
         os.makedirs(viz_folder, exist_ok=True)
 
         # ask user for dim and index to visualize
-        slice_dim = dropdown("[Viz] Dimension to visualize", "1", options=["0", "1", "2"])
-        slice_index = number_input("[Viz] Slice index to visualize", 30, min=1, step=1)
+        #slice_dim = dropdown("[Viz] Dimension to visualize", "1", options=["0", "1", "2"])
+        #slice_index = number_input("[Viz] Slice index to visualize", 30, min=1, step=1)
         main(
             user_parameters['modelGrid.grav.file'],
             os.path.join(out_path, 'model', 'grav_final_model_full.txt'),
             user_parameters['forward.data.grav.dataValuesFile'],
             os.path.join(out_path, 'data', 'grav_calc_final_data.txt'),
-            slice_dim=int(slice_dim),
-            slice_index=int(slice_index),
+            slice_dim=int(0),
+            slice_index=int(nx/2),
+            draw_true_model=False,
+            to_folder=viz_folder
+        )
+        main(
+            user_parameters['modelGrid.grav.file'],
+            os.path.join(out_path, 'model', 'grav_final_model_full.txt'),
+            user_parameters['forward.data.grav.dataValuesFile'],
+            os.path.join(out_path, 'data', 'grav_calc_final_data.txt'),
+            slice_dim=int(1),
+            slice_index=int(ny/2),
+            draw_true_model=False,
+            to_folder=viz_folder
+        )
+        main(
+            user_parameters['modelGrid.grav.file'],
+            os.path.join(out_path, 'model', 'grav_final_model_full.txt'),
+            user_parameters['forward.data.grav.dataValuesFile'],
+            os.path.join(out_path, 'data', 'grav_calc_final_data.txt'),
+            slice_dim=int(2),
+            slice_index=int(nz/2),
             draw_true_model=False,
             to_folder=viz_folder
         )

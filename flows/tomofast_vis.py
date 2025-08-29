@@ -320,10 +320,13 @@ def main(
     # Remove not-needed columns.
     if (slice_dim == 0):
         model_grid_slice_2d = np.delete(model_grid_slice, [0, 1, 6], axis=1)
+        section='x'
     elif (slice_dim == 1):
         model_grid_slice_2d = np.delete(model_grid_slice, [2, 3, 6], axis=1)
+        section='y'
     elif (slice_dim == 2):
         model_grid_slice_2d = np.delete(model_grid_slice, [4, 5, 6], axis=1)
+        section='z'
 
     model_final_slice = model_final[slice_filter]
 
@@ -332,9 +335,9 @@ def main(
     #----------------------------------------------------------------------------------
     grid = model_grid_slice_2d
 
-    if (draw_true_model):
-        draw_model(grid, true_model_slice, "True model.", palette, os.path.join(to_folder, 'true_model.jpg'))
-    draw_model(grid, model_final_slice, "Final model.", palette, os.path.join(to_folder, 'final_slice_model.jpg'))
+    """if (draw_true_model):
+        draw_model(grid, true_model_slice, "True model.", palette, os.path.join(to_folder, 'true_model.jpg'))"""
+    draw_model(grid, model_final_slice, "Final model.", palette, os.path.join(to_folder, f'final_slice_model_{section}.jpg'))
 
     #----------------------------------------------------------------------------------
     # Extract data slice.
@@ -363,7 +366,7 @@ def main(
         # A 2D data responce - not supported here.
         profile_coord = 0
 
-    draw_data(data_observed_slice, data_calculated_slice, profile_coord, os.path.join(to_folder, 'data.jpg'))
+    #draw_data(data_observed_slice, data_calculated_slice, profile_coord, os.path.join(to_folder, f'data_{section}.jpg'))
 
 #=============================================================================
 if __name__ == "__main__":
