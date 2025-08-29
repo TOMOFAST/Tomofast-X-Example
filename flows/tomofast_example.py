@@ -43,9 +43,9 @@ def run():
         'forward.data.grav.dataGridFile': file_input('Data file', 'data_grav.csv', types=[("CSV", ".csv"),("TXT", ".txt")]),
         'forward.matrixCompression.rate' : slider("Matrix Compression Rate", 0.15, min=0., max=1., step=0.01),
         'global.outputFolderPath ': out_path,                                                           # output in data folder so that files are automatically uploaded afterward
-        'forward.data.grav.dataValuesFile': os.path.join(out_path, 'data', 'grav_calc_read_data.txt'),  # output in data folder so that files are automatically uploaded afterward
         'sensit.folderPath': os.path.join(out_path, 'SENSIT'),                                          # output in data folder so that files are automatically uploaded afterward
     }
+    user_parameters['forward.data.grav.dataValuesFile'] = user_parameters['forward.data.grav.dataGridFile']
 
     # read default parameters
     with open(parameter_file) as f:
@@ -100,7 +100,7 @@ def run():
 
         # ask user for dim and index to visualize
         slice_dim = dropdown("[Viz] Dimension to visualize", "1", options=["0", "1", "2"])
-        slice_index = number_input("[Viz] Slice index to visualize", 1, min=1, step=1)
+        slice_index = number_input("[Viz] Slice index to visualize", 30, min=1, step=1)
         main(
             user_parameters['modelGrid.grav.file'],
             os.path.join(out_path, 'model', 'grav_final_model_full.txt'),
@@ -108,6 +108,7 @@ def run():
             os.path.join(out_path, 'data', 'grav_calc_final_data.txt'),
             slice_dim=int(slice_dim),
             slice_index=int(slice_index),
+            draw_true_model=False,
             to_folder=viz_folder
         )
 
