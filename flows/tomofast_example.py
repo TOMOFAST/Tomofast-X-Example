@@ -44,7 +44,7 @@ def run():
         'global.outputFolderPath ': out_path,                                                           # output in data folder so that files are automatically uploaded afterward
         'sensit.folderPath': os.path.join(out_path, 'SENSIT'),                                          # output in data folder so that files are automatically uploaded afterward
     }
-    user_parameters[f'forward.{dataType}.dataValuesFile'] = user_parameters[f'forward.data.{dataType}.dataGridFile']
+    user_parameters[f'forward.data.{dataType}.dataValuesFile'] = user_parameters[f'forward.data.{dataType}.dataGridFile']
 
     # read default parameters
     with open(parameter_file) as f:
