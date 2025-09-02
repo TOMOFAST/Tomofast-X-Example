@@ -34,17 +34,17 @@ def run():
     data_path = Project().data_root
     out_path = os.path.join(data_path, "outputs")
 
-    parameter_file = file_input('Parameter File', 'paramfile2.txt', types=[("TXT", ".txt")])
+    parameter_file = file_input('Parameter File', 'paramfile.txt', types=[("TXT", ".txt")])
 
     # parameters to overwrite
     user_parameters = {
-        'modelGrid.grav.file': file_input('Mesh file', 'model_grid2.txt', types=[("CSV", ".csv"), ("TXT", ".txt")]),
-        f'forward.data.{dataType}.dataGridFile': file_input('Data file', 'data_grav.csv', types=[("CSV", ".csv"),("TXT", ".txt")]),
+        f'modelGrid.{dataType}.file': file_input('Mesh file', 'model_grid.txt', types=[("CSV", ".csv"), ("TXT", ".txt")]),
+        f'forward.data.{dataType}.dataGridFile': file_input('Data file', 'data.csv', types=[("CSV", ".csv"),("TXT", ".txt")]),
         'forward.matrixCompression.rate' : slider("Matrix Compression Rate", 0.15, min=0., max=1., step=0.01),
         'global.outputFolderPath ': out_path,                                                           # output in data folder so that files are automatically uploaded afterward
         'sensit.folderPath': os.path.join(out_path, 'SENSIT'),                                          # output in data folder so that files are automatically uploaded afterward
     }
-    user_parameters[f'forward.{dataType}.grav.dataValuesFile'] = user_parameters[f'forward.data.{dataType}.dataGridFile']
+    user_parameters[f'forward.{dataType}.dataValuesFile'] = user_parameters[f'forward.data.{dataType}.dataGridFile']
 
     # read default parameters
     with open(parameter_file) as f:
