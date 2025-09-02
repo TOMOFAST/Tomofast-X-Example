@@ -23,28 +23,36 @@ def run():
     # choose data type
 
     # Project().mode = Mode.EXECUTE
-    dataType = radio_button(
-        key="Data Type",
-        value="grav",
-        options=["grav", "magn"]
-    )
+    dataType = radio_button(key="Data Type", value="grav", options=["grav", "magn"])
 
     # Input parameters and output folder definition
     Logger.info("Preparing parameter file...")
     data_path = Project().data_root
     out_path = os.path.join(data_path, "outputs")
 
-    parameter_file = file_input('Parameter File', 'paramfile.txt', types=[("TXT", ".txt")])
+    parameter_file = file_input(
+        "Parameter File", "paramfile.txt", types=[("TXT", ".txt")]
+    )
 
     # parameters to overwrite
     user_parameters = {
-        f'modelGrid.{dataType}.file': file_input('Mesh file', 'model_grid.txt', types=[("CSV", ".csv"), ("TXT", ".txt")]),
-        f'forward.data.{dataType}.dataGridFile': file_input('Data file', 'data.csv', types=[("CSV", ".csv"),("TXT", ".txt")]),
-        'forward.matrixCompression.rate' : slider("Matrix Compression Rate", 0.15, min=0., max=1., step=0.01),
-        'global.outputFolderPath ': out_path,                                                           # output in data folder so that files are automatically uploaded afterward
-        'sensit.folderPath': os.path.join(out_path, 'SENSIT'),                                          # output in data folder so that files are automatically uploaded afterward
+        f"modelGrid.{dataType}.file": file_input(
+            "Mesh file", "model_grid.txt", types=[("CSV", ".csv"), ("TXT", ".txt")]
+        ),
+        f"forward.data.{dataType}.dataGridFile": file_input(
+            "Data file", "data.csv", types=[("CSV", ".csv"), ("TXT", ".txt")]
+        ),
+        "forward.matrixCompression.rate": slider(
+            "Matrix Compression Rate", 0.15, min=0.0, max=1.0, step=0.01
+        ),
+        "global.outputFolderPath ": out_path,  # output in data folder so that files are automatically uploaded afterward
+        "sensit.folderPath": os.path.join(
+            out_path, "SENSIT"
+        ),  # output in data folder so that files are automatically uploaded afterward
     }
-    user_parameters[f'forward.data.{dataType}.dataValuesFile'] = user_parameters[f'forward.data.{dataType}.dataGridFile']
+    user_parameters[f"forward.data.{dataType}.dataValuesFile"] = user_parameters[
+        f"forward.data.{dataType}.dataGridFile"
+    ]
 
     # read default parameters
     with open(parameter_file) as f:
@@ -62,22 +70,22 @@ def run():
                 if isinstance(value, (int, float)):
                     value = fortran_double_str(value)
 
-                line = f'{key} = {value} \n'
-            elif line.startswith('modelGrid.size') :
-                nx, ny, nz = line.split('= ')[1].split(' ')
+                line = f"{key} = {value} \n"
+            elif line.startswith("modelGrid.size"):
+                nx, ny, nz = line.split("= ")[1].split(" ")
         new_params.append(line)
 
-    nx=int(nx)
-    ny=int(ny)
-    nz=int(nz)
+    nx = int(nx)
+    ny = int(ny)
+    nz = int(nz)
 
     # write new parameter file
-    new_param_file = parameter_file.replace('.txt', '_new.txt')
-    with open(new_param_file, 'w') as f:
+    new_param_file = parameter_file.replace(".txt", "_new.txt")
+    with open(new_param_file, "w") as f:
         for l in new_params:
             f.write(l)
 
-    if shutil.which('mpirun') is None:
+    if shutil.which("mpirun") is None:
         Logger.critical("MPI is not present on the machine => aborting")
         raise RuntimeError("MPI is not present on the machine!")
 
@@ -85,12 +93,17 @@ def run():
     try:
         Logger.info(f"MPI available => Running Tomofast-x with {n_cores} cores")
 
-        result = subprocess.run([
-            "mpirun",
-            "--oversubscribe",
-            "-np", str(n_cores),
-            "./tomofast-x/tomofastx", "-j", new_param_file
-        ])
+        result = subprocess.run(
+            [
+                "mpirun",
+                "--oversubscribe",
+                "-np",
+                str(n_cores),
+                "./tomofast-x/tomofastx",
+                "-j",
+                new_param_file,
+            ]
+        )
         returncode = result.returncode
 
     except:
@@ -100,45 +113,45 @@ def run():
         # make viz here (e.g. matplotlib)
         # instead of or in addition to plt.show() => plt.savefig(file_output(...))
         Logger.info("Tomofast ran successfully, generating graphical outputs")
-        viz_folder = os.path.join(out_path, 'visualizations')
+        viz_folder = os.path.join(out_path, "visualizations")
         os.makedirs(viz_folder, exist_ok=True)
 
         # ask user for dim and index to visualize
         # slice_dim = dropdown("[Viz] Dimension to visualize", "1", options=["0", "1", "2"])
         # slice_index = number_input("[Viz] Slice index to visualize", 30, min=1, step=1)
-        if(dataType=='grav'):
-            name='grav'
+        if dataType == "grav":
+            name = "grav"
         else:
-            name='mag'
+            name = "mag"
         main(
-            user_parameters[f'modelGrid.{dataType}.file'],
-            os.path.join(out_path, 'model', f'{name}_final_model_full.txt'),
-            user_parameters[f'forward.data.{dataType}.dataValuesFile'],
-            os.path.join(out_path, 'data', f'{name}_calc_final_data.txt'),
+            user_parameters[f"modelGrid.{dataType}.file"],
+            os.path.join(out_path, "model", f"{name}_final_model_full.txt"),
+            user_parameters[f"forward.data.{dataType}.dataValuesFile"],
+            os.path.join(out_path, "data", f"{name}_calc_final_data.txt"),
             slice_dim=int(0),
-            slice_index=int(nx/2),
+            slice_index=int(nx / 2),
             draw_true_model=False,
-            to_folder=viz_folder
+            to_folder=viz_folder,
         )
         main(
-            user_parameters[f'modelGrid.{dataType}.file'],
-            os.path.join(out_path, 'model', f'{name}_final_model_full.txt'),
-            user_parameters[f'forward.data.{dataType}.dataValuesFile'],
-            os.path.join(out_path, 'data', f'{name}_calc_final_data.txt'),
+            user_parameters[f"modelGrid.{dataType}.file"],
+            os.path.join(out_path, "model", f"{name}_final_model_full.txt"),
+            user_parameters[f"forward.data.{dataType}.dataValuesFile"],
+            os.path.join(out_path, "data", f"{name}_calc_final_data.txt"),
             slice_dim=int(1),
-            slice_index=int(ny/2),
+            slice_index=int(ny / 2),
             draw_true_model=False,
-            to_folder=viz_folder
+            to_folder=viz_folder,
         )
         main(
-            user_parameters[f'modelGrid.{dataType}.file'],
-            os.path.join(out_path, 'model', f'{name}_final_model_full.txt'),
-            user_parameters[f'forward.data.{dataType}.dataValuesFile'],
-            os.path.join(out_path, 'data', f'{name}_calc_final_data.txt'),
+            user_parameters[f"modelGrid.{dataType}.file"],
+            os.path.join(out_path, "model", f"{name}_final_model_full.txt"),
+            user_parameters[f"forward.data.{dataType}.dataValuesFile"],
+            os.path.join(out_path, "data", f"{name}_calc_final_data.txt"),
             slice_dim=int(2),
-            slice_index=int(nz/2),
+            slice_index=int(nz / 2),
             draw_true_model=False,
-            to_folder=viz_folder
+            to_folder=viz_folder,
         )
 
     # Here, expose all output files by recursively looping in the output directory
@@ -150,7 +163,7 @@ def run():
             # add if-statement here to filter files and not expose some of them,
             # e.g. if filename.endswith('.txt')
 
-            suffix_list= tuple(['.txt','.jpg','.vtk'])
+            suffix_list = tuple([".txt", ".jpg", ".vtk"])
             if filename.endswith(suffix_list):
                 f = os.path.join(dirpath, filename)
                 file_output(filename, f)
