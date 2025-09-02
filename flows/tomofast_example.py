@@ -8,8 +8,8 @@ from onecode import (
     slider,
     file_input,
     file_output,
-    dropdown,
-    number_input
+    radio_button,
+    Mode,
 )
 
 from .utils import fortran_double_str
@@ -17,18 +17,17 @@ from .tomofast_vis import main
 
 
 def run():
-    # Select number of cores to use with MPI
-    n_cores = slider(
-        "Number of cores (0 for all available)",
-        0,
-        min=0,
-        max=16,
-        step=1
-    )
-
     max_cores = os.cpu_count()
-    if n_cores == 0 or n_cores > max_cores:
-        n_cores = max_cores
+    n_cores = max_cores
+
+    # choose data type
+
+    Project().mode = Mode.EXECUTE
+    dataType = radio_button(
+        key="dataRadioButton",
+        value="grav",
+        options=["grav", "magn"]
+    )
 
     # Input parameters and output folder definition
     Logger.info("Preparing parameter file...")
@@ -40,12 +39,12 @@ def run():
     # parameters to overwrite
     user_parameters = {
         'modelGrid.grav.file': file_input('Mesh file', 'model_grid2.txt', types=[("CSV", ".csv"), ("TXT", ".txt")]),
-        'forward.data.grav.dataGridFile': file_input('Data file', 'data_grav.csv', types=[("CSV", ".csv"),("TXT", ".txt")]),
+        f'forward.data.{dataType}.dataGridFile': file_input('Data file', 'data_grav.csv', types=[("CSV", ".csv"),("TXT", ".txt")]),
         'forward.matrixCompression.rate' : slider("Matrix Compression Rate", 0.15, min=0., max=1., step=0.01),
         'global.outputFolderPath ': out_path,                                                           # output in data folder so that files are automatically uploaded afterward
         'sensit.folderPath': os.path.join(out_path, 'SENSIT'),                                          # output in data folder so that files are automatically uploaded afterward
     }
-    user_parameters['forward.data.grav.dataValuesFile'] = user_parameters['forward.data.grav.dataGridFile']
+    user_parameters[f'forward.{dataType}.grav.dataValuesFile'] = user_parameters[f'forward.data.{dataType}.dataGridFile']
 
     # read default parameters
     with open(parameter_file) as f:
@@ -65,7 +64,7 @@ def run():
 
                 line = f'{key} = {value} \n'
             elif line.startswith('modelGrid.size') :
-                nx, ny, nz= line.split('= ')[1].split(' ')
+                nx, ny, nz = line.split('= ')[1].split(' ')
         new_params.append(line)
 
     nx=int(nx)
@@ -105,33 +104,33 @@ def run():
         os.makedirs(viz_folder, exist_ok=True)
 
         # ask user for dim and index to visualize
-        #slice_dim = dropdown("[Viz] Dimension to visualize", "1", options=["0", "1", "2"])
-        #slice_index = number_input("[Viz] Slice index to visualize", 30, min=1, step=1)
+        # slice_dim = dropdown("[Viz] Dimension to visualize", "1", options=["0", "1", "2"])
+        # slice_index = number_input("[Viz] Slice index to visualize", 30, min=1, step=1)
         main(
-            user_parameters['modelGrid.grav.file'],
-            os.path.join(out_path, 'model', 'grav_final_model_full.txt'),
-            user_parameters['forward.data.grav.dataValuesFile'],
-            os.path.join(out_path, 'data', 'grav_calc_final_data.txt'),
+            user_parameters[f'modelGrid.{dataType}.file'],
+            os.path.join(out_path, 'model', f'{dataType}_final_model_full.txt'),
+            user_parameters[f'forward.data.{dataType}.dataValuesFile'],
+            os.path.join(out_path, 'data', f'{dataType}_calc_final_data.txt'),
             slice_dim=int(0),
             slice_index=int(nx/2),
             draw_true_model=False,
             to_folder=viz_folder
         )
         main(
-            user_parameters['modelGrid.grav.file'],
-            os.path.join(out_path, 'model', 'grav_final_model_full.txt'),
-            user_parameters['forward.data.grav.dataValuesFile'],
-            os.path.join(out_path, 'data', 'grav_calc_final_data.txt'),
+            user_parameters[f'modelGrid.{dataType}.file'],
+            os.path.join(out_path, 'model', f'{dataType}_final_model_full.txt'),
+            user_parameters[f'forward.data.{dataType}.dataValuesFile'],
+            os.path.join(out_path, 'data', f'{dataType}_calc_final_data.txt'),
             slice_dim=int(1),
             slice_index=int(ny/2),
             draw_true_model=False,
             to_folder=viz_folder
         )
         main(
-            user_parameters['modelGrid.grav.file'],
-            os.path.join(out_path, 'model', 'grav_final_model_full.txt'),
-            user_parameters['forward.data.grav.dataValuesFile'],
-            os.path.join(out_path, 'data', 'grav_calc_final_data.txt'),
+            user_parameters[f'modelGrid.{dataType}.file'],
+            os.path.join(out_path, 'model', f'{dataType}_final_model_full.txt'),
+            user_parameters[f'forward.data.{dataType}.dataValuesFile'],
+            os.path.join(out_path, 'data', f'{dataType}_calc_final_data.txt'),
             slice_dim=int(2),
             slice_index=int(nz/2),
             draw_true_model=False,
