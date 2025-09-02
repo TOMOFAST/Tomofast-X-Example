@@ -106,11 +106,15 @@ def run():
         # ask user for dim and index to visualize
         # slice_dim = dropdown("[Viz] Dimension to visualize", "1", options=["0", "1", "2"])
         # slice_index = number_input("[Viz] Slice index to visualize", 30, min=1, step=1)
+        if(dataType=='grav'):
+            name='grav'
+        else:
+            name='mag'
         main(
             user_parameters[f'modelGrid.{dataType}.file'],
-            os.path.join(out_path, 'model', f'{dataType}_final_model_full.txt'),
+            os.path.join(out_path, 'model', f'{name}_final_model_full.txt'),
             user_parameters[f'forward.data.{dataType}.dataValuesFile'],
-            os.path.join(out_path, 'data', f'{dataType}_calc_final_data.txt'),
+            os.path.join(out_path, 'data', f'{name}_calc_final_data.txt'),
             slice_dim=int(0),
             slice_index=int(nx/2),
             draw_true_model=False,
@@ -118,9 +122,9 @@ def run():
         )
         main(
             user_parameters[f'modelGrid.{dataType}.file'],
-            os.path.join(out_path, 'model', f'{dataType}_final_model_full.txt'),
+            os.path.join(out_path, 'model', f'{name}_final_model_full.txt'),
             user_parameters[f'forward.data.{dataType}.dataValuesFile'],
-            os.path.join(out_path, 'data', f'{dataType}_calc_final_data.txt'),
+            os.path.join(out_path, 'data', f'{name}_calc_final_data.txt'),
             slice_dim=int(1),
             slice_index=int(ny/2),
             draw_true_model=False,
@@ -128,9 +132,9 @@ def run():
         )
         main(
             user_parameters[f'modelGrid.{dataType}.file'],
-            os.path.join(out_path, 'model', f'{dataType}_final_model_full.txt'),
+            os.path.join(out_path, 'model', f'{name}_final_model_full.txt'),
             user_parameters[f'forward.data.{dataType}.dataValuesFile'],
-            os.path.join(out_path, 'data', f'{dataType}_calc_final_data.txt'),
+            os.path.join(out_path, 'data', f'{name}_calc_final_data.txt'),
             slice_dim=int(2),
             slice_index=int(nz/2),
             draw_true_model=False,
