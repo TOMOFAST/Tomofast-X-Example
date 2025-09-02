@@ -22,9 +22,9 @@ def run():
 
     # choose data type
 
-    Project().mode = Mode.EXECUTE
+    # Project().mode = Mode.EXECUTE
     dataType = radio_button(
-        key="dataRadioButton",
+        key="Data Type",
         value="grav",
         options=["grav", "magn"]
     )
