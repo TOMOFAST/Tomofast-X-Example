@@ -17,6 +17,11 @@ from matplotlib.colors import ListedColormap
 import matplotlib.colorbar as cbar
 
 
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+
 # ==================================================================================================
 # Visualisation of a 2D model slice.
 def draw_model(grid, model, title, palette, to_file=None):
@@ -273,6 +278,7 @@ def main(
     # ----------------------------------------------------------------------------------
     # Reading data.
     # ----------------------------------------------------------------------------------
+    plot_space_delimited_data(filename_data_observed)
 
     # Reading the model grid.
     model_grid = np.loadtxt(
@@ -364,11 +370,11 @@ def main(
     )
     data_filter = np.logical_and(data_filter_x, data_filter_y)
 
-    data_observed_slice = data_observed[data_filter, :]
-    data_calculated_slice = data_calculated[data_filter, :]
+    # data_observed_slice = data_observed[data_filter, :]
+    # data_calculated_slice = data_calculated[data_filter, :]
 
-    print("Ndata slice =", data_observed_slice.shape[0])
-
+    # print("Ndata slice =", data_observed_slice.shape[0])
+    # plot_field(data_filter, 'Observed Data', to_file=os.path.join(to_folder, f'data_observed.jpg'))
     # ----------------------------------------------------------------------------------
     # Drawing the data.
     # ----------------------------------------------------------------------------------
@@ -386,6 +392,73 @@ def main(
     # draw_data(data_observed_slice, data_calculated_slice, profile_coord, os.path.join(to_folder, f'data_{section}.jpg'))
 
 
+def plot_space_delimited_data(filename):
+    """
+    Read a space-delimited file and plot data with specified requirements.
+    
+    Parameters:
+    filename (str): Path to the space-delimited file
+    
+    The function:
+    - Skips the first line (header)
+    - Uses columns 1, 2, and 4 (0-indexed: 0, 1, 3)
+    - Plots x=col1, y=col2, colored by col4
+    - Uses viridis colormap with no stroke
+    - Clips color scale to 95% of data range
+    """
+    
+    # Read the file and parse data
+    x_data = []
+    y_data = []
+    color_data = []
+    
+    with open(filename, 'r') as file:
+        lines = file.readlines()
+        
+        # Skip the first line (header)
+        for line in lines[1:]:
+            # Split by whitespace and convert to float
+            columns = line.strip().split()
+            if len(columns) >= 4:  # Ensure we have at least 4 columns
+                x_data.append(float(columns[0]))  # First column
+                y_data.append(float(columns[1]))  # Second column
+                color_data.append(float(columns[3]))  # Fourth column
+    
+    # Convert to numpy arrays
+    x = np.array(x_data)
+    y = np.array(y_data)
+    colors = np.array(color_data)
+    
+    # Calculate 95% data range for color clipping
+    vmin = np.percentile(colors, 2.5)  # Lower 2.5%
+    vmax = np.percentile(colors, 97.5)  # Upper 97.5%
+    
+    # Create the plot
+    pl.figure(figsize=(10, 8))
+    
+    scatter = pl.scatter(x, y, c=colors, cmap='viridis', 
+                         vmin=vmin, vmax=vmax, 
+                         edgecolors='none', s=50)
+    
+    # Add colorbar
+    pl.colorbar(scatter, label='Color Scale (Column 4)')
+    
+    # Labels and title
+    pl.xlabel('X values (Column 1)')
+    pl.ylabel('Y values (Column 2)')
+    pl.title('Scatter Plot from Space-Delimited File')
+    
+    # Save the plot as JPG
+    pl.tight_layout()
+    output_filename = filename.rsplit('.', 1)[0] + '_plot.jpg'
+    pl.savefig(output_filename, format='jpg', dpi=300, bbox_inches='tight')
+    pl.close()  # Close the figure to free memory
+    
+    print(f"Plot saved as: {output_filename}")
+    return output_filename
+
+# Example usage:
+# plot_space_delimited_data('your_file.txt')
 # =============================================================================
 if __name__ == "__main__":
     main()
