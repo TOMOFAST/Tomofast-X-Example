@@ -15,6 +15,7 @@ from matplotlib.patches import Rectangle
 from matplotlib.collections import PatchCollection
 from matplotlib.colors import ListedColormap
 import matplotlib.colorbar as cbar
+from scipy.interpolate import griddata
 
 
 import pandas as pd
@@ -415,36 +416,70 @@ def plot_space_delimited_data(filename, to_folder):
     # Convert to numpy arrays
     x = np.array(data_observed[:, 0])
     y = np.array(data_observed[:, 1])
-    colors = np.array(data_observed[:, 3])
-
+    values = np.array(data_observed[:, 3])
+    resolution = x[1] - x[0]
     # Calculate 95% data range for color clipping
     vmin = np.percentile(colors, 2.5)  # Lower 2.5%
     vmax = np.percentile(colors, 97.5)  # Upper 97.5%
-
-    # Create the plot
-    pl.figure(figsize=(10, 8))
-
-    scatter = pl.scatter(
-        x, y, c=colors, marker='s', cmap="viridis", vmin=vmin, vmax=vmax, edgecolors="none", s=100
+    scatter_to_raster(
+        x,
+        y,
+        values,
+        resolution=resolution,
+        method="cubic",
+        filename=os.path.join(to_folder, "Observed_data.jpg"),
+        extent=None,
     )
 
-    # Add colorbar
-    pl.colorbar(scatter, label="Data")
 
-    # Labels and title
-    pl.xlabel("X values")
-    pl.ylabel("Y values")
-    pl.title("Observed Data")
+def scatter_to_raster(
+    x,
+    y,
+    values,
+    resolution=100,
+    method="linear",
+    filename="raster_output.png",
+    extent=None,
+):
+    """
+    Convert scatter points to interpolated raster image
 
-    # Save the plot as JPG
-    pl.tight_layout()
-    pl.savefig(
-        os.path.join(to_folder, "Observed_data.jpg"),
-        format="jpg",
-        dpi=300,
-        bbox_inches="tight",
+    Parameters:
+    - x, y: coordinate arrays
+    - values: data values at each point
+    - resolution: output image resolution
+    - method: 'linear', 'nearest', 'cubic'
+    - filename: output file path
+    - extent: [xmin, xmax, ymin, ymax] or None for auto
+    """
+
+    # Define grid extent
+    if extent is None:
+        xmin, xmax = x.min(), x.max()
+        ymin, ymax = y.min(), y.max()
+    else:
+        xmin, xmax, ymin, ymax = extent
+
+    # Create regular grid
+    xi = np.linspace(xmin, xmax, resolution)
+    yi = np.linspace(ymin, ymax, resolution)
+    xi_grid, yi_grid = np.meshgrid(xi, yi)
+
+    # Interpolate
+    zi = griddata((x, y), values, (xi_grid, yi_grid), method=method)
+
+    # Save as image
+    plt.figure(figsize=(10, 8))
+    plt.imshow(
+        zi,
+        origin="lower",
+        extent=[xmin, xmax, ymin, ymax],
+        aspect="auto",
+        cmap="viridis",
     )
-    pl.close()  # Close the figure to free memory
+    plt.colorbar()
+    plt.savefig(filename, dpi=300, bbox_inches="tight")
+    plt.close()
 
 
 # Example usage:
