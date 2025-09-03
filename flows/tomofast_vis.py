@@ -451,8 +451,8 @@ def scatter_to_raster(
     - filename: output file path
     - extent: [xmin, xmax, ymin, ymax] or None for auto
     """
-    vmin = np.percentile(colors, 2.5)  # Lower 2.5%
-    vmax = np.percentile(colors, 97.5)  # Upper 97.5%
+    vmin = np.percentile(values, 2.5)  # Lower 2.5%
+    vmax = np.percentile(values, 97.5)  # Upper 97.5%
 
     # Define grid extent
     if extent is None:
