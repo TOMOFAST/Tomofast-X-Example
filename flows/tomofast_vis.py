@@ -328,8 +328,8 @@ def main(
     grid_slice_y_min = np.min(model_grid_slice[:, 2:4])
     grid_slice_y_max = np.max(model_grid_slice[:, 2:4])
 
-    print("Grid slice dimenion (X): ", grid_slice_x_min, grid_slice_x_max)
-    print("Grid slice dimenion (Y): ", grid_slice_y_min, grid_slice_y_max)
+    print("Grid slice dimension (X): ", grid_slice_x_min, grid_slice_x_max)
+    print("Grid slice dimension (Y): ", grid_slice_y_min, grid_slice_y_max)
 
     # Remove not-needed columns.
     if slice_dim == 0:
@@ -425,16 +425,16 @@ def plot_space_delimited_data(filename, to_folder):
     pl.figure(figsize=(10, 8))
 
     scatter = pl.scatter(
-        x, y, c=colors, cmap="viridis", vmin=vmin, vmax=vmax, edgecolors="none", s=50
+        x, y, c=colors, marker='s', cmap="viridis", vmin=vmin, vmax=vmax, edgecolors="none", s=100
     )
 
     # Add colorbar
-    pl.colorbar(scatter, label="Color Scale (Column 4)")
+    pl.colorbar(scatter, label="Data")
 
     # Labels and title
-    pl.xlabel("X values (Column 1)")
-    pl.ylabel("Y values (Column 2)")
-    pl.title("Scatter Plot from Space-Delimited File")
+    pl.xlabel("X values")
+    pl.ylabel("Y values")
+    pl.title("Observed Data")
 
     # Save the plot as JPG
     pl.tight_layout()
