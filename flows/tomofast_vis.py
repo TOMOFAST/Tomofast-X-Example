@@ -417,7 +417,7 @@ def plot_space_delimited_data(filename, to_folder):
     x = np.array(data_observed[:, 0])
     y = np.array(data_observed[:, 1])
     values = np.array(data_observed[:, 3])
-    resolution = x[1] - x[0]
+    resolution = int(x[1] - x[0])
     # Calculate 95% data range for color clipping
 
     scatter_to_raster(
