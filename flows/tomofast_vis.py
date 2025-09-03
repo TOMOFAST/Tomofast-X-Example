@@ -19,7 +19,7 @@ from scipy.interpolate import griddata
 
 
 import pandas as pd
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as pl
 import numpy as np
 
 
@@ -175,7 +175,7 @@ def plot_3D_model(
         edgecolors[i, j, k] = "#00000000"  # fully transparent edge
 
     # Call the plotter
-    plt_model_3D(
+    pl_model_3D(
         filled,
         facecolors,
         dzyx,
@@ -189,7 +189,7 @@ def plot_3D_model(
 
 # ==================================================================================================
 # Visualisation of a 3D model (called by plot_3D_model).
-def plt_model_3D(
+def pl_model_3D(
     filled,
     facecolors,
     dzyx,
@@ -419,8 +419,7 @@ def plot_space_delimited_data(filename, to_folder):
     values = np.array(data_observed[:, 3])
     resolution = x[1] - x[0]
     # Calculate 95% data range for color clipping
-    vmin = np.percentile(colors, 2.5)  # Lower 2.5%
-    vmax = np.percentile(colors, 97.5)  # Upper 97.5%
+
     scatter_to_raster(
         x,
         y,
@@ -452,6 +451,8 @@ def scatter_to_raster(
     - filename: output file path
     - extent: [xmin, xmax, ymin, ymax] or None for auto
     """
+    vmin = np.percentile(colors, 2.5)  # Lower 2.5%
+    vmax = np.percentile(colors, 97.5)  # Upper 97.5%
 
     # Define grid extent
     if extent is None:
@@ -469,17 +470,19 @@ def scatter_to_raster(
     zi = griddata((x, y), values, (xi_grid, yi_grid), method=method)
 
     # Save as image
-    plt.figure(figsize=(10, 8))
-    plt.imshow(
+    pl.figure(figsize=(10, 8))
+    pl.imshow(
         zi,
+        vmin=vmin,
+        vmax=vmax,
         origin="lower",
         extent=[xmin, xmax, ymin, ymax],
         aspect="auto",
         cmap="viridis",
     )
-    plt.colorbar()
-    plt.savefig(filename, dpi=300, bbox_inches="tight")
-    plt.close()
+    pl.colorbar()
+    pl.savefig(filename, dpi=300, bbox_inches="tight")
+    pl.close()
 
 
 # Example usage:
