@@ -278,7 +278,8 @@ def main(
     # ----------------------------------------------------------------------------------
     # Reading data.
     # ----------------------------------------------------------------------------------
-    plot_space_delimited_data(filename_data_observed)
+    if slice_dim == 0:
+        plot_space_delimited_data(filename_data_observed,to_folder)
 
     # Reading the model grid.
     model_grid = np.loadtxt(
@@ -392,7 +393,7 @@ def main(
     # draw_data(data_observed_slice, data_calculated_slice, profile_coord, os.path.join(to_folder, f'data_{section}.jpg'))
 
 
-def plot_space_delimited_data(filename):
+def plot_space_delimited_data(filename,to_folder):
     """
     Read a space-delimited file and plot data with specified requirements.
     
@@ -450,12 +451,8 @@ def plot_space_delimited_data(filename):
     
     # Save the plot as JPG
     pl.tight_layout()
-    output_filename = filename.rsplit('.', 1)[0] + '_plot.jpg'
-    pl.savefig(output_filename, format='jpg', dpi=300, bbox_inches='tight')
+    pl.savefig(os.path.join(to_folder, "Observed_data.jpg"), format='jpg', dpi=300, bbox_inches='tight')
     pl.close()  # Close the figure to free memory
-    
-    print(f"Plot saved as: {output_filename}")
-    return output_filename
 
 # Example usage:
 # plot_space_delimited_data('your_file.txt')
