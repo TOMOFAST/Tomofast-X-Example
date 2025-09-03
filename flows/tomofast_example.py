@@ -23,7 +23,7 @@ def run():
     # choose data type
 
     # Project().mode = Mode.EXECUTE
-    dataType = radio_button(key="Data Type", value="grav", options=["grav", "magn"])
+    dataType = radio_button(key="Data Type", value="magn", options=["grav", "magn"])
 
     # Input parameters and output folder definition
     Logger.info("Preparing parameter file...")

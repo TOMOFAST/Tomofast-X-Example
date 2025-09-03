@@ -279,7 +279,7 @@ def main(
     # Reading data.
     # ----------------------------------------------------------------------------------
     if slice_dim == 0:
-        plot_space_delimited_data(filename_data_observed,to_folder)
+        plot_space_delimited_data(filename_data_observed, to_folder)
 
     # Reading the model grid.
     model_grid = np.loadtxt(
@@ -393,13 +393,13 @@ def main(
     # draw_data(data_observed_slice, data_calculated_slice, profile_coord, os.path.join(to_folder, f'data_{section}.jpg'))
 
 
-def plot_space_delimited_data(filename,to_folder):
+def plot_space_delimited_data(filename, to_folder):
     """
     Read a space-delimited file and plot data with specified requirements.
-    
+
     Parameters:
     filename (str): Path to the space-delimited file
-    
+
     The function:
     - Skips the first line (header)
     - Uses columns 1, 2, and 4 (0-indexed: 0, 1, 3)
@@ -407,52 +407,45 @@ def plot_space_delimited_data(filename,to_folder):
     - Uses viridis colormap with no stroke
     - Clips color scale to 95% of data range
     """
-    
+
     # Read the file and parse data
-    x_data = []
-    y_data = []
-    color_data = []
-    
-    with open(filename, 'r') as file:
-        lines = file.readlines()
-        
-        # Skip the first line (header)
-        for line in lines[1:]:
-            # Split by whitespace and convert to float
-            columns = line.strip().split()
-            if len(columns) >= 4:  # Ensure we have at least 4 columns
-                x_data.append(float(columns[0]))  # First column
-                y_data.append(float(columns[1]))  # Second column
-                color_data.append(float(columns[3]))  # Fourth column
-    
+
+    data_observed = np.loadtxt(filename, dtype=float, usecols=(0, 1, 2, 3), skiprows=1)
+
     # Convert to numpy arrays
-    x = np.array(x_data)
-    y = np.array(y_data)
-    colors = np.array(color_data)
-    
+    x = np.array(data_observed[:, 0])
+    y = np.array(data_observed[:, 1])
+    colors = np.array(data_observed[:, 3])
+
     # Calculate 95% data range for color clipping
     vmin = np.percentile(colors, 2.5)  # Lower 2.5%
     vmax = np.percentile(colors, 97.5)  # Upper 97.5%
-    
+
     # Create the plot
     pl.figure(figsize=(10, 8))
-    
-    scatter = pl.scatter(x, y, c=colors, cmap='viridis', 
-                         vmin=vmin, vmax=vmax, 
-                         edgecolors='none', s=50)
-    
+
+    scatter = pl.scatter(
+        x, y, c=colors, cmap="viridis", vmin=vmin, vmax=vmax, edgecolors="none", s=50
+    )
+
     # Add colorbar
-    pl.colorbar(scatter, label='Color Scale (Column 4)')
-    
+    pl.colorbar(scatter, label="Color Scale (Column 4)")
+
     # Labels and title
-    pl.xlabel('X values (Column 1)')
-    pl.ylabel('Y values (Column 2)')
-    pl.title('Scatter Plot from Space-Delimited File')
-    
+    pl.xlabel("X values (Column 1)")
+    pl.ylabel("Y values (Column 2)")
+    pl.title("Scatter Plot from Space-Delimited File")
+
     # Save the plot as JPG
     pl.tight_layout()
-    pl.savefig(os.path.join(to_folder, "Observed_data.jpg"), format='jpg', dpi=300, bbox_inches='tight')
+    pl.savefig(
+        os.path.join(to_folder, "Observed_data.jpg"),
+        format="jpg",
+        dpi=300,
+        bbox_inches="tight",
+    )
     pl.close()  # Close the figure to free memory
+
 
 # Example usage:
 # plot_space_delimited_data('your_file.txt')
