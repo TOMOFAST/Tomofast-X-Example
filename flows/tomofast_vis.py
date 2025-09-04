@@ -475,7 +475,7 @@ def scatter_to_raster(
         zi,
         vmin=vmin,
         vmax=vmax,
-        origin="lower",
+        origin="equant",
         extent=[xmin, xmax, ymin, ymax],
         aspect="auto",
         cmap="viridis",
