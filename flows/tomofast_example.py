@@ -36,11 +36,11 @@ def run():
 
     # parameters to overwrite
     user_parameters = {
-        f"modelGrid.{dataType}.file": file_input(
-            "Mesh file", "model_grid.txt", types=[("CSV", ".csv"), ("TXT", ".txt")]
-        ),
         f"forward.data.{dataType}.dataGridFile": file_input(
             "Data file", "data.csv", types=[("CSV", ".csv"), ("TXT", ".txt")]
+        ),
+        f"modelGrid.{dataType}.file": file_input(
+            "Mesh file", "model_grid.txt", types=[("CSV", ".csv"), ("TXT", ".txt")]
         ),
         "forward.matrixCompression.rate": slider(
             "Matrix Compression Rate", 0.15, min=0.0, max=1.0, step=0.01
