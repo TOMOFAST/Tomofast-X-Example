@@ -477,7 +477,7 @@ def scatter_to_raster(
         vmax=vmax,
         origin="lower",
         extent=[xmin, xmax, ymin, ymax],
-        aspect="equant",
+        aspect="equal",
         cmap="viridis",
     )
     pl.colorbar()
