@@ -53,7 +53,7 @@ def run():
     user_parameters[f"forward.data.{dataType}.dataValuesFile"] = user_parameters[
         f"forward.data.{dataType}.dataGridFile"
     ]
-
+    print("loading paramfile from: ", parameter_file)
     # read default parameters
     with open(parameter_file) as f:
         lines = f.readlines()
